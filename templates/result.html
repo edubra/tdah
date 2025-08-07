@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="resultado">
+        <h2>Seu resultado:</h2>
+
+        {% if tipo == "inatento" %}
+            <h3>🧳 O Viajante Mental</h3>
+            <p>Sua mente está sempre cheia de ideias, mas às vezes esquece o básico.</p>
+        {% elif tipo == "hiperativo" %}
+            <h3>⚡ O Furacão</h3>
+            <p>Você é energia pura. Parar? Jamais!</p>
+        {% elif tipo == "impulsivo" %}
+            <h3>🚀 O Turbo Sem Freio</h3>
+            <p>Você age antes de pensar. Mas também nunca passa despercebido.</p>
+        {% elif tipo == "combinado" %}
+            <h3>🌪️ O Multitarefa Caótico</h3>
+            <p>Você é o combo completo! Gênio criativo e caos andam juntos por aqui.</p>
+        {% else %}
+            <h3>🧘 O Equilibrado Zen</h3>
+            <p>Parabéns! Você domina seu foco como um monge.</p>
+        {% endif %}
+
+        <button class="btn" onclick="compartilhar()">Compartilhar</button>
+        <a href="{{ url_for('main.index') }}" class="btn">Refazer</a>
+    </div>
+
+    <script>
+        function compartilhar() {
+            const shareData = {
+                title: 'Meu tipo de TDAH é: {{ tipo|capitalize }}!',
+                text: 'Descubra o seu também no ADHD Quest!',
+                url: window.location.origin
+            };
+
+            if (navigator.share) {
+                navigator.share(shareData).catch(console.error);
+            } else {
+                alert('Compartilhamento não suportado neste navegador.');
+            }
+        }
+    </script>
+{% endblock %}

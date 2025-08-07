@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="desafio">
+        <h2>{{ desafio.titulo }}</h2>
+        <p>{{ desafio.pergunta }}</p>
+
+        <div id="instrucoes">
+            <p>Quando estiver pronto, clique no botão abaixo para iniciar o desafio.</p>
+            <button class="btn" onclick="iniciarDesafio()">Começar</button>
+        </div>
+
+        <div id="conteudo-desafio" style="display:none;">
+        {% if desafio.tipo == 'visual' %}
+            <div id="cronometro" style="display:none;">
+                <p>Tempo restante: <span id="tempo">30</span> segundos</p>
+            </div>
+
+            <div id="grid" class="grid"></div>
+
+            <div id="pergunta-cerebros" style="display:none;">
+                <p>Quantos cérebros estavam no grid?</p>
+                <form method="POST">
+                    {% for i in range(1, 5) %}
+                        <button class="btn" type="submit" name="resposta" value="{{ 'nenhum' if i == cerebros_corretos else 'inatento' }}">
+                            {{ i }}
+                        </button>
+                    {% endfor %}
+                </form>
+            </div>
+
+            <form id="formAutoFalha" method="POST" style="display: none;">
+                <input type="hidden" name="resposta" value="inatento">
+            </form>
+
+        {% elif desafio.tipo == 'reflexo' %}
+            <div id="reflexo-wrapper">
+                <p id="mensagem">Aguarde...</p>
+                <button id="reflexo-btn" class="emoji-btn" disabled>Clique</button>
+            </div>
+            <form id="formReflexo" method="POST" style="display: none;">
+                <input type="hidden" name="resposta" value="impulsivo" id="respostaReflexo">
+            </form>
+
+        {% elif desafio.tipo == 'memoria' %}
+            <div id="memoria-container">
+                <p id="mensagem-memoria">Memorize a sequência:</p>
+                <div id="sequencia" class="sequencia"></div>
+
+                <div id="escolha-container" class="escolha" style="display:none;">
+                    <p>Reproduza a sequência clicando nos símbolos na ordem correta:</p>
+                    <div id="opcoes"></div>
+                    <button class="btn" type="button" onclick="enviarSequencia()">Enviar</button>
+                </div>
+            </div>
+
+            <form id="formMemoria" method="POST" style="display: none;">
+                <input type="hidden" name="resposta" value="nenhum" id="respostaMemoria">
+            </form>
+
+        {% elif desafio.tipo == 'paciência' %}
+            <div id="paciencia-wrapper">
+                <p id="mensagem-paciencia">Espere 5 segundos e clique no botão!</p>
+                <button class="btn" id="paciencia-btn">Clique</button>
+            </div>
+
+            <form id="formPaciencia" method="POST" style="display: none;">
+                <input type="hidden" name="resposta" value="impulsivo" id="respostaPaciencia">
+            </form>
+
+        {% elif desafio.tipo == 'decisao' %}
+            <form id="formDecisao" method="POST">
+                {% for opcao in desafio.opcoes %}
+                    <button class="btn" type="submit" name="resposta" value="{{ opcao.valor }}">
+                        {{ opcao.texto }}
+                    </button>
+                {% endfor %}
+            </form>
+
+        {% elif desafio.tipo == 'video' %}
+            <div class="video-wrapper">
+                <video width="100%" controls autoplay muted id="video-desafio">
+                    <source src="{{ url_for('static', filename='videos/desafio5.mp4') }}" type="video/mp4">
+                    Seu navegador não suporta vídeo.
+                </video>
+                <p>Assista com atenção. As perguntas aparecerão em seguida.</p>
+            </div>
+
+        {% endif %}
+        </div>
+
+        <p class="passo">Desafio {{ step }} de 5</p>
+    </div>
+
+    <script>
+        function iniciarDesafio() {
+            document.getElementById("instrucoes").style.display = "none";
+            document.getElementById("conteudo-desafio").style.display = "block";
+
+            {% if desafio.tipo == 'visual' %}
+                if (typeof iniciarDesafioVisual === 'function') {
+                    iniciarDesafioVisual();
+                } else {
+                    console.error('Função iniciarDesafioVisual não está definida.');
+                }
+            {% elif desafio.tipo == 'reflexo' %}
+                if (typeof iniciarDesafioReflexo === 'function') {
+                    iniciarDesafioReflexo();
+                } else {
+                    console.error('Função iniciarDesafioReflexo não está definida.');
+                }
+            {% elif desafio.tipo == 'memoria' %}
+                if (typeof iniciarDesafioMemoria === 'function') {
+                    iniciarDesafioMemoria();
+                } else {
+                    console.error('Função iniciarDesafioMemoria não está definida.');
+                }
+            {% elif desafio.tipo == 'paciência' %}
+                if (typeof iniciarDesafioPaciencia === 'function') {
+                    iniciarDesafioPaciencia();
+                } else {
+                    console.error('Função iniciarDesafioPaciencia não está definida.');
+                }
+            {% elif desafio.tipo == 'decisao' %}
+                if (typeof iniciarDesafioDecisao === 'function') {
+                    iniciarDesafioDecisao();
+                } else {
+                    console.error('Função iniciarDesafioDecisao não está definida.');
+                }
+            {% elif desafio.tipo == 'video' %}
+                if (typeof iniciarDesafioVideo === 'function') {
+                    iniciarDesafioVideo();
+                } else {
+                    console.error('Função iniciarDesafioVideo não está definida.');
+                }
+            {% endif %}
+        }
+    </script>
+
+    {% if desafio.tipo == 'visual' %}
+        <script src="{{ url_for('static', filename='js/desafio_visual.js') }}"></script>
+    {% elif desafio.tipo == 'reflexo' %}
+        <script src="{{ url_for('static', filename='js/desafio_reflexo.js') }}"></script>
+    {% elif desafio.tipo == 'memoria' %}
+        <script src="{{ url_for('static', filename='js/desafio_memoria.js') }}"></script>
+    {% elif desafio.tipo == 'paciência' %}
+        <script src="{{ url_for('static', filename='js/desafio_paciencia.js') }}"></script>
+    {% elif desafio.tipo == 'decisao' %}
+        <script src="{{ url_for('static', filename='js/desafio_decisao.js') }}"></script>
+    {% elif desafio.tipo == 'video' %}
+        <script src="{{ url_for('static', filename='js/desafio_video.js') }}"></script>
+    {% endif %}
+{% endblock %}

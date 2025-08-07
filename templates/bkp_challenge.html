@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="desafio">
+        <h2>{{ desafio.titulo }}</h2>
+        <p>{{ desafio.pergunta }}</p>
+
+        {% if desafio.tipo == 'visual' %}
+            <div id="grid" class="grid"></div>
+            <form id="formRes" method="POST" style="display: none;">
+                <input type="hidden" name="resposta" value="inatento" id="inputResposta">
+            </form>
+        {% else %}
+            <form method="POST">
+                {% for opcao in desafio.opcoes %}
+                    <button class="btn" type="submit" name="resposta" value="{{ opcao }}">
+                        {{ opcao|capitalize }}
+                    </button>
+                {% endfor %}
+            </form>
+        {% endif %}
+
+        <p class="passo">Desafio {{ step }} de 5</p>
+    </div>
+
+  {% if desafio.tipo == 'visual' %}
+    <div id="instrucoes">
+        <p>Quando estiver pronto, clique no botão abaixo para iniciar o desafio.</p>
+        <button class="btn" onclick="iniciarDesafio()">Começar</button>
+    </div>
+
+    <div id="cronometro" style="display:none;">
+        <p>Tempo restante: <span id="tempo">30</span> segundos</p>
+    </div>
+
+    <div id="grid" class="grid" style="display:none;"></div>
+
+    <div id="pergunta-cerebros" style="display:none;">
+        <p>Quantos cérebros estavam no grid?</p>
+        <form method="POST">
+            {% for i in range(1, 5) %}
+                <button class="btn" type="submit" name="resposta" value="{{ 'nenhum' if i == cerebros_corretos else 'inatento' }}">
+                    {{ i }}
+                </button>
+            {% endfor %}
+        </form>
+    </div>
+
+    <form id="formAutoFalha" method="POST" style="display: none;">
+        <input type="hidden" name="resposta" value="inatento">
+    </form>
+
+    <script>
+        const grid = document.getElementById("grid");
+        const tempoSpan = document.getElementById("tempo");
+        const cronometro = document.getElementById("cronometro");
+        const instrucoes = document.getElementById("instrucoes");
+        const pergunta = document.getElementById("pergunta-cerebros");
+
+        const emojis = ["🍕", "💣", "🧀", "🦷", "💀", "🍺"];
+        const alvo = "🧠";
+        const total = 49; // 7x7
+        const numCerebros = Math.floor(Math.random() * 4) + 1; // 1 a 4
+
+        let posicoesCerebros = [];
+        let clicados = [];
+
+        function iniciarDesafio() {
+            instrucoes.style.display = "none";
+            cronometro.style.display = "block";
+            grid.style.display = "grid";
+
+            // Gera posições únicas para os cérebros
+            while (posicoesCerebros.length < numCerebros) {
+                const pos = Math.floor(Math.random() * total);
+                if (!posicoesCerebros.includes(pos)) {
+                    posicoesCerebros.push(pos);
+                }
+            }
+
+            for (let i = 0; i < total; i++) {
+                let btn = document.createElement("button");
+                btn.className = "emoji-btn";
+                btn.innerText = posicoesCerebros.includes(i) ? alvo : emojis[Math.floor(Math.random() * emojis.length)];
+                btn.onclick = function (e) {
+                    e.preventDefault();
+                    if (posicoesCerebros.includes(i)) {
+                        if (!clicados.includes(i)) {
+                            clicados.push(i);
+                            btn.disabled = true;
+                            btn.style.opacity = 0.5;
+                        }
+                        if (clicados.length === numCerebros) {
+                            mostrarPergunta();
+                        }
+                    } else {
+                        // clicou em emoji errado
+                        respostaAutomaticaFalha();
+                    }
+                };
+                grid.appendChild(btn);
+            }
+
+            // Inicia cronômetro regressivo
+            let tempoRestante = 30;
+            const cronometroID = setInterval(() => {
+                tempoRestante--;
+                tempoSpan.textContent = tempoRestante;
+                if (tempoRestante <= 0) {
+                    clearInterval(cronometroID);
+                    respostaAutomaticaFalha();
+                }
+            }, 1000);
+        }
+
+        function mostrarPergunta() {
+            grid.style.display = "none";
+            cronometro.style.display = "none";
+            pergunta.style.display = "block";
+        }
+
+        function respostaAutomaticaFalha() {
+            document.getElementById("formAutoFalha").submit();
+        }
+    </script>
+       
+    {% elif desafio.tipo == 'reflexo' %}
+    <div id="reflexo-wrapper">
+        <p id="mensagem">Aguarde...</p>
+        <button id="reflexo-btn" class="emoji-btn" disabled>Clique</button>
+    </div>
+    <form id="formReflexo" method="POST" style="display: none;">
+        <input type="hidden" name="resposta" value="impulsivo" id="respostaReflexo">
+    </form>
+    <script>
+        const reflexoBtn = document.getElementById("reflexo-btn");
+        const mensagem = document.getElementById("mensagem");
+        const respostaInput = document.getElementById("respostaReflexo");
+
+        let clicouAntes = false;
+
+        reflexoBtn.addEventListener("click", function () {
+            if (reflexoBtn.style.backgroundColor === "green") {
+                respostaInput.value = "nenhum"; // clicou certo
+            } else {
+                respostaInput.value = "impulsivo"; // clicou antes
+            }
+            document.getElementById("formReflexo").submit();
+        });
+
+        // Espera aleatória antes de ativar o botão
+        const tempo = Math.floor(Math.random() * 4000) + 2000; // 2-6s
+
+        setTimeout(() => {
+            reflexoBtn.disabled = false;
+            reflexoBtn.style.backgroundColor = "green";
+            mensagem.innerText = "Clique agora!";
+        }, tempo);
+    </script>
+{% elif desafio.tipo == 'memoria' %}
+    <div id="memoria-container">
+        <p id="mensagem-memoria">Memorize a sequência:</p>
+        <div id="sequencia" class="sequencia"></div>
+
+        <div id="escolha-container" class="escolha" style="display:none;">
+            <p>Reproduza a sequência clicando nos símbolos na ordem correta:</p>
+            <div id="opcoes"></div>
+            <button class="btn" onclick="enviarSequencia()">Enviar</button>
+        </div>
+    </div>
+
+    <form id="formMemoria" method="POST" style="display: none;">
+        <input type="hidden" name="resposta" value="nenhum" id="respostaMemoria">
+    </form>
+
+    <script>
+        const emojis = ["🍎", "🍌", "🍒", "🍇", "🍓", "🥝", "🍍"];
+        let level = 1;
+        let maxLevel = 3;
+        let tamanhoSequencia = 3;
+        const sequencia = [];
+        const escolhaFeita = [];
+
+        const sequenciaDiv = document.getElementById("sequencia");
+        const opcoesDiv = document.getElementById("opcoes");
+        const respostaInput = document.getElementById("respostaMemoria");
+
+        iniciarLevel();
+
+        function iniciarLevel() {
+            sequencia.length = 0;
+            escolhaFeita.length = 0;
+            tamanhoSequencia = (level === 1) ? 3 : (level === 2) ? 4 : 6;
+
+            sequenciaDiv.innerHTML = "";
+            opcoesDiv.innerHTML = "";
+            document.getElementById("escolha-container").style.display = "none";
+            document.getElementById("mensagem-memoria").innerText = `Nível ${level}: Memorize a sequência`;
+
+            // gerar nova sequência
+            for (let i = 0; i < tamanhoSequencia; i++) {
+                const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+                sequencia.push(emoji);
+                let span = document.createElement("span");
+                span.innerText = emoji;
+                span.className = "emoji-memo";
+                sequenciaDiv.appendChild(span);
+            }
+
+            setTimeout(() => {
+                sequenciaDiv.innerHTML = "🧠🧠🧠";
+                document.getElementById("mensagem-memoria").innerText = "Reproduza a sequência";
+                document.getElementById("escolha-container").style.display = "block";
+
+                // embaralha
+                let embaralhada = [...sequencia];
+                for (let i = embaralhada.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [embaralhada[i], embaralhada[j]] = [embaralhada[j], embaralhada[i]];
+                }
+
+                embaralhada.forEach((emoji, index) => {
+                    let btn = document.createElement("button");
+                    btn.innerText = emoji;
+                    btn.className = "emoji-btn";
+                    btn.onclick = function (e) {
+                        e.preventDefault();
+                        if (escolhaFeita.length < tamanhoSequencia) {
+                            escolhaFeita.push(emoji);
+                            btn.disabled = true;
+                            btn.style.opacity = 0.5;
+                        }
+                    };
+                    opcoesDiv.appendChild(btn);
+                });
+
+            }, 3000);
+        }
+
+        function enviarSequencia() {
+            const correta = sequencia.join("");
+            const resposta = escolhaFeita.join("");
+
+            if (correta === resposta) {
+                glowSequencia("green");
+                if (level < maxLevel) {
+                    level++;
+                    setTimeout(iniciarLevel, 2000);
+                } else {
+                    respostaInput.value = "nenhum"; // completou todos os níveis
+                    setTimeout(() => {
+                        document.getElementById("formMemoria").submit();
+                    }, 2000);
+                }
+            } else {
+                glowSequencia("red");
+                respostaInput.value = "inatento"; // errou
+                setTimeout(() => {
+                    document.getElementById("formMemoria").submit();
+                }, 2000);
+            }
+        }
+
+        function glowSequencia(cor) {
+            const buttons = opcoesDiv.querySelectorAll(".emoji-btn");
+            buttons.forEach(btn => {
+                btn.style.boxShadow = `0 0 10px ${cor}`;
+            });
+        }
+    </script>
+
+    {% elif desafio.tipo == 'decisao' %}
+    <form method="POST" class="escolha-emocional">
+        {% for opcao in desafio.opcoes %}
+            <button class="btn" type="submit" name="resposta" value="{{ opcao.valor }}">
+                {{ opcao.texto }}
+            </button>
+        {% endfor %}
+    </form>
+{% elif desafio.tipo == 'paciência' %}
+    <div id="paciencia-wrapper">
+        <p id="mensagem-paciencia">Espere 5 segundos e clique no botão!</p>
+        <button class="btn" id="paciencia-btn">Clique</button>
+    </div>
+
+    <form id="formPaciencia" method="POST" style="display: none;">
+        <input type="hidden" name="resposta" value="impulsivo" id="respostaPaciencia">
+    </form>
+
+    <script>
+        const btn = document.getElementById("paciencia-btn");
+        const resposta = document.getElementById("respostaPaciencia");
+        let startTime = Date.now();
+
+        btn.onclick = function (e) {
+            e.preventDefault();
+            let diff = (Date.now() - startTime) / 1000;
+
+            if (diff < 5) {
+                resposta.value = "hiperativo"; // clicou cedo demais
+            } else if (diff > 7) {
+                resposta.value = "inatento"; // demorou demais
+            } else {
+                resposta.value = "nenhum"; // clique perfeito
+            }
+
+            document.getElementById("formPaciencia").submit();
+        };
+    </script>
+
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="intro">
+        <h1>🧠 ADHD Quest</h1>
+        <p>Descubra de forma divertida qual tipo de TDAH habita a sua mente!</p>
+        <a href="{{ url_for('main.desafio', step=1) }}" class="btn">Começar o teste</a>
+    </div>
+{% endblock %}
