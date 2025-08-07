@@ -28,3 +28,4 @@ access_log_format = '%(h)s - %(u)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %({x-forw
 
 # ---222- Performance/GC (opcional, ajuste com parcimônia)
 git# import os; os.environ["PYTHONUNBUFFERED"] = "1"
+#bla bla bla
