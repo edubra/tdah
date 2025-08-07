@@ -26,5 +26,5 @@ loglevel  = "info"
 # Ex.: %({x-forwarded-for}i)s mostra o IP real vindo do Nginx
 access_log_format = '%(h)s - %(u)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %({x-forwarded-for}i)s'
 
-# ---- Performance/GC (opcional, ajuste com parcimônia)
-# import os; os.environ["PYTHONUNBUFFERED"] = "1"
+# ---222- Performance/GC (opcional, ajuste com parcimônia)
+git# import os; os.environ["PYTHONUNBUFFERED"] = "1"
