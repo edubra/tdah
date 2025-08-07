@@ -16,8 +16,8 @@ max_requests = 2000
 max_requests_jitter = 200
 
 # Logs
-accesslog = "/var/www/tdah/logs/access.log"
-errorlog  = "/var/www/tdah/logs/error.log"
+accesslog = "-"
+errorlog  = "-"
 loglevel  = "info"
 access_log_format = '%(h)s - %(u)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %({x-forwarded-for}i)s'
 
