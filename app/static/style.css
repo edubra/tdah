@@ -186,3 +186,39 @@ p {
     margin: 5px;
     transition: transform 0.2s, box-shadow 0.2s;
 }
+/* Ajustes para telas pequenas (celulares) */
+@media (max-width: 768px) {
+    body {
+        font-size: 1.3rem; /* aumenta o tamanho base do texto */
+    }
+
+    h1, h2, h3 {
+        font-size: 1.8em;
+    }
+
+    p, li, label, input, button {
+        font-size: 1.2em;
+    }
+
+    button, .btn {
+        padding: 14px 20px;
+        font-size: 1.2em;
+    }
+
+    input, select, textarea {
+        padding: 10px;
+        font-size: 1.1em;
+    }
+
+    /* Se tiver cartões ou blocos de desafio */
+    .card, .bloco, .container {
+        padding: 20px;
+        margin: 10px auto;
+    }
+
+    /* Se tiver imagens ou elementos gráficos */
+    img, canvas, video {
+        max-width: 100%;
+        height: auto;
+    }
+}
