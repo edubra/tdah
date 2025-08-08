@@ -71,7 +71,7 @@
         {% elif desafio.tipo == 'decisao' %}
             <form id="formDecisao" method="POST">
                 {% for opcao in desafio.opcoes %}
-                    <button class="btn" type="submit" name="resposta" value="{{ opcao.valor }}">
+                    <button class="btn-resposta" type="submit" name="resposta" value="{{ opcao.valor }}">
                         {{ opcao.texto }}
                     </button>
                 {% endfor %}
